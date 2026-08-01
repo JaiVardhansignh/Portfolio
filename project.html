@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project — Jai Vardhan Singh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="hud hud-tl" id="hudBrand"></div>
+<nav class="hud hud-tr">
+  <a data-carrymode href="index.html#work">PROJECTS</a>
+  <a data-carrymode href="index.html#journey-s">JOURNEY</a>
+  <a data-carrymode href="index.html#about">ABOUT</a>
+  <a data-carrymode href="index.html#contact">CONTACT</a>
+</nav>
+<div class="hud hud-bl">FPS <span id="fps">60</span> // RUNTIME_STABLE</div>
+<div class="hud hud-br"><span id="pct">0%</span><div class="sbar"><i id="sfill"></i></div></div>
+
+<!-- everything renders here from site-data.js -->
+<main id="pdmount"></main>
+
+<footer>
+  <div><b>JAI VARDHAN SINGH</b> — MrCing Dev · Unreal Engine Gameplay Programmer</div>
+  <div>BUILT SOLO. SHIPPED SOLO. // 2026</div>
+</footer>
+
+<!-- Lightbox -->
+<div class="lb" id="lb">
+  <span class="lbcount" id="lbcount"></span>
+  <button class="lbx" id="lbx">CLOSE ✕</button>
+  <button class="lbn prev" id="lbprev">‹</button>
+  <img id="lbimg" src="" alt="">
+  <button class="lbn next" id="lbnext">›</button>
+  <div class="lbcap" id="lbcap"></div>
+</div>
+
+<script src="site-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
