@@ -93,7 +93,27 @@ function badge(p){return '<span class="badge '+esc(p.statusType||'prototype')+'"
 function tagrow(tags){return '<div class="tagrow">'+ (tags||[]).map(function(t){return '<span class="tag">'+esc(t)+'</span>'}).join('') +'</div>'}
 function cover(p){
   if(p.cover)return '<img src="'+esc(p.cover)+'" alt="'+esc(p.title)+'" loading="lazy">';
-  return '<div class="ph">COVER SLOT — set cover:"images/..." for '+esc(p.title)+' in site-data.js</div>';
+  return '<div class="ph">'+esc(p.title)+'</div>';
+}
+function mailtoHref(){
+  var u='mailto:'+STUDIO.email,q=[];
+  if(STUDIO.emailSubject)q.push('subject='+encodeURIComponent(STUDIO.emailSubject));
+  if(STUDIO.emailBody)q.push('body='+encodeURIComponent(STUDIO.emailBody));
+  return q.length?u+'?'+q.join('&'):u;
+}
+function copyText(txt,btn){
+  function done(){var o=btn.dataset.label||btn.textContent;btn.dataset.label=o;btn.textContent='COPIED ✓';setTimeout(function(){btn.textContent=btn.dataset.label},1600)}
+  function fallback(){
+    var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done()}catch(e){}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,fallback);
+  else fallback();
+}
+function metaline(p){
+  return [(p.platforms||[]).join(' / '),p.genre,p.engine,p.role].filter(Boolean).map(esc).join(' · ');
 }
 
 /* ---------- HOME ---------- */
@@ -103,7 +123,7 @@ function renderHome(){
     return '<a class="pcard rv" data-carrymode href="project.html?id='+encodeURIComponent(p.id)+'">'
       +'<div class="pcover">'+cover(p)+badge(p)+'</div>'
       +'<div class="pbody"><h3>'+esc(p.title)+'</h3>'
-      +'<div class="pmeta">'+esc((p.platforms||[]).join(' / '))+' · '+esc(p.engine||'')+' · '+esc(p.role||'')+'</div>'
+      +'<div class="pmeta">'+metaline(p)+'</div>'
       +'<p class="pshort">'+esc(p.short)+'</p>'+tagrow(p.tags)+'</div></a>';
   }).join('');
   var tl=$('#journey');
@@ -116,16 +136,55 @@ function renderHome(){
   }).join('');
   var cl=$('#contactLinks');
   if(cl){
-    var out=STUDIO.email?'<a class="btn p" href="mailto:'+esc(STUDIO.email)+'">▶ Email Me</a>':'';
+    var out=STUDIO.email?'<a class="btn p" href="'+esc(mailtoHref())+'">▶ Email Me</a>':'';
     STUDIO.socials.forEach(function(s){if(s.url)out+='<a class="mini" target="_blank" rel="noopener" href="'+esc(s.url)+'">'+esc(s.label)+' ↗</a>'});
-    if(STUDIO.resume)out+='<a class="mini" href="'+esc(STUDIO.resume)+'">RESUME ↓</a>';
+    if(STUDIO.resume)out+='<a class="mini" href="'+esc(STUDIO.resume)+'" download>RESUME ↓</a>';
     cl.innerHTML=out;
   }
-  var dn=$('#discordNote');
-  if(dn)dn.textContent=STUDIO.discord?('DISCORD // '+STUDIO.discord):'';
+  initDiscord($('#discordNote'));
   var rb=$('#resumeBtn');
-  if(rb){if(STUDIO.resume)rb.href=STUDIO.resume;else rb.style.display='none'}
+  if(rb){if(STUDIO.resume){rb.href=STUDIO.resume;rb.setAttribute('download','')}else rb.style.display='none'}
   if(STUDIO.heroImage){var hi=$('.hero-img');if(hi)hi.style.backgroundImage='url("'+STUDIO.heroImage+'")'}
+}
+
+/* discord handle + copy-to-clipboard */
+function initDiscord(el){
+  if(!el||!STUDIO.discord)return;
+  el.innerHTML='DISCORD // '+esc(STUDIO.discord)
+    +' <button class="mini copybtn" type="button" aria-label="Copy Discord username">COPY ⧉</button>';
+  var b=$('.copybtn',el);
+  if(b)b.addEventListener('click',function(){copyText(STUDIO.discord,b)});
+}
+
+/* ---------- CONTACT PAGE ---------- */
+function renderContact(){
+  var m=$('#cmount');if(!m)return;
+  var CARDS=[
+    { h:'EMAIL',    v:STUDIO.email,                  d:'Fastest way to reach me — replies within a day.', href:mailtoHref(), ext:false },
+    { h:'LINKEDIN', v:'in/jai-vardhan-signh',        d:'Professional profile and experience.',            href:socialUrl('LINKEDIN'), ext:true },
+    { h:'YOUTUBE',  v:'@MrCing',                     d:'Devlogs, trailers, and gameplay showcases.',      href:socialUrl('YOUTUBE'), ext:true },
+    { h:'FAB STORE',v:'WeirdoGamingStudio',          d:'My published Unreal Engine marketplace assets.',  href:socialUrl('FAB STORE'), ext:true },
+    { h:'ITCH.IO',  v:'mrching.itch.io',             d:'Playable games and downloadable asset packs.',    href:socialUrl('ITCH.IO'), ext:true },
+  ];
+  var html='<div class="cgrid">'+CARDS.filter(function(c){return c.href}).map(function(c){
+    return '<a class="ccard rv in" '+(c.ext?'target="_blank" rel="noopener" ':'')+'href="'+esc(c.href)+'">'
+      +'<div class="ch">'+esc(c.h)+(c.ext?' ↗':'')+'</div><div class="cv">'+esc(c.v)+'</div><div class="cd">'+esc(c.d)+'</div></a>';
+  }).join('');
+  if(STUDIO.discord){
+    html+='<div class="ccard nolink rv in"><div class="ch">DISCORD</div><div class="cv">'+esc(STUDIO.discord)+'</div>'
+      +'<div class="cd">Add me for quick chats and collabs.</div>'
+      +'<button class="mini copybtn" type="button" aria-label="Copy Discord username">COPY USERNAME ⧉</button></div>';
+  }
+  html+='</div>';
+  m.innerHTML=html;
+  var b=$('.copybtn',m);
+  if(b)b.addEventListener('click',function(){copyText(STUDIO.discord,b)});
+  var eb=$('#sendEmailBtn');if(eb)eb.href=mailtoHref();
+  var rb=$('#contactResume');
+  if(rb){if(STUDIO.resume){rb.href=STUDIO.resume;rb.setAttribute('download','')}else rb.style.display='none'}
+}
+function socialUrl(label){
+  var u='';STUDIO.socials.forEach(function(s){if(s.label===label&&s.url)u=s.url});return u;
 }
 
 /* ---------- PROJECT DETAIL ---------- */
@@ -149,8 +208,11 @@ function renderProject(){
   html+='<div class="pd-banner"><div class="pd-bg '+(p.cover?'':'noimg')+'" '+(p.cover?'style="background-image:url(\''+esc(p.cover)+'\')"':'')+'></div><div class="pd-fade"></div>'
     +'<div class="pd-head"><a class="backlink" data-carrymode href="index.html#work">← ALL PROJECTS</a>'
     +'<div class="pd-title">'+esc(p.title)+'</div>'
-    +'<div class="pd-metaline"><b>'+esc(p.status)+'</b> · '+esc((p.platforms||[]).join(' / '))+' · '+esc(p.engine||'')+' · '+esc(p.role||'')+'</div>'
+    +'<div class="pd-metaline"><b>'+esc(p.status)+'</b> · '+metaline(p)+'</div>'
     +'<div class="pd-tags">'+(p.tags||[]).map(function(t){return '<span class="tag">'+esc(t)+'</span>'}).join('')+'</div>'
+    +((p.links&&p.links.length)?'<div class="pd-links">'+p.links.map(function(l){
+      return '<a class="dl-btn" target="_blank" rel="noopener" href="'+esc(l.url)+'">'+esc(l.label)+' ↗</a>';
+    }).join('')+'</div>':'')
     +'</div></div>';
 
   html+='<div class="modes"><span class="lbl">VIEW:</span>'
@@ -180,7 +242,8 @@ function renderProject(){
       if(!g.images||!g.images.length)return;
       gh+='<div data-aud="'+esc(g.aud||'both')+'"><div class="gal-title">'+esc(g.title)+'</div><div class="gal">'
         +g.images.map(function(im,ix){
-          return '<button class="gitem" data-g="'+esc(g.title)+'" data-ix="'+ix+'"><img src="'+esc(im.src)+'" alt="'+esc(im.caption||'')+'" loading="lazy"></button>';
+          var alt=im.caption||(p.title+' — '+g.title+' '+(ix+1));
+          return '<button class="gitem" type="button" aria-label="View '+esc(alt)+'" data-g="'+esc(g.title)+'" data-ix="'+ix+'"><img src="'+esc(im.src)+'" alt="'+esc(alt)+'" loading="lazy"></button>';
         }).join('')+'</div></div>';
     });
     if(gh)html+=sec('both','// GALLERY',gh);
@@ -188,7 +251,7 @@ function renderProject(){
 
   if(p.downloads&&p.downloads.length){
     var dh='<div class="dl">'+p.downloads.map(function(d){
-      var btn=d.url?'<a class="dl-btn" href="'+esc(d.url)+'">DOWNLOAD ↓</a>':'<span class="dl-btn soon">COMING SOON</span>';
+      var btn=d.url?'<a class="dl-btn" target="_blank" rel="noopener" href="'+esc(d.url)+'">DOWNLOAD ↓</a>':'<span class="dl-btn soon">COMING SOON</span>';
       var meta=[d.version,d.size,d.requirements].filter(Boolean).join(' · ');
       return '<div class="dlrow"><div class="di"><div class="p">'+esc(d.platform)+'</div><div class="m">'+esc(meta)+'</div></div>'+btn
         +(d.notes?'<div class="note2">'+esc(d.notes)+'</div>':'')+'</div>';
@@ -224,7 +287,7 @@ function renderProject(){
 }
 function lbShow(){
   var im=LB.imgs[LB.i];if(!im)return;
-  var img=$('#lbimg');img.classList.remove('zoomed');img.src=im.src;
+  var img=$('#lbimg');img.classList.remove('zoomed');img.src=im.src;img.alt=im.caption||'Screenshot '+(LB.i+1);
   $('#lbcap').textContent=im.caption||'';
   $('#lbcount').textContent=(LB.i+1)+' / '+LB.imgs.length;
 }
@@ -249,6 +312,7 @@ document.addEventListener('DOMContentLoaded',function(){
   var hb=$('#hudBrand');if(hb)hb.innerHTML='<b>'+esc(STUDIO.name).toUpperCase()+'</b> // '+esc(STUDIO.brand).toUpperCase();
   renderHome();
   renderProject();
+  renderContact();
   initChrome();
   initHeroFX();
   initLightbox();
