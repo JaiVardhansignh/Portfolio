@@ -491,7 +491,7 @@ const STUDIO = {
       engine: "Unreal Engine 4",
       role: "Solo Developer",
       tags: ["FPS","Starter Template","UE4","Blueprint","AI","Weapon Systems","Released"],
-      cover: "images/ue4prototype/ue4pro-1.webp",
+      cover: "images/ue4prototype/ue4pro-cover.png",
       short: "Your game's jumpstart — a complete UE4 FPS foundation with weapon customization, AI, and gameplay systems, ready to build on.",
       links: [
         { label: "GET ON ITCH.IO", url: "https://mrching.itch.io/unreal-engine-4-fps-prototype-your-games-jumpstart" },
