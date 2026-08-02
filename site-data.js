@@ -83,7 +83,7 @@ const STUDIO = {
 
       galleries: [
         { title: "Screenshots", aud: "both", images: [
-          { src: "images/ruffies-1.png""images/ruffies-1.png""images/ruffies-1.png""images/ruffies-1.png", caption: "The rooftops of Munchington" },
+          { src: "images/ruffies-1.png","images/ruffies-1.png","images/ruffies-1.png","images/ruffies-1.png", caption: "The rooftops of Munchington" },
           // { src: "images/ruffies-2.png", caption: "..." },  <- add as you upload
         ]},
         // { title: "Characters",   aud: "player", images: [] },
